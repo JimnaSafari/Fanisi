@@ -21,6 +21,8 @@ import DocumentTemplates from "@/components/DocumentTemplates";
 import { useToast } from "@/hooks/use-toast";
 import UserSelector from "@/components/UserSelector";
 import { useUser } from "@/contexts/UserContext";
+import NotificationBell from "@/components/NotificationBell";
+import ReminderManager from "@/components/ReminderManager";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -75,6 +77,7 @@ const Index = () => {
             </Badge>
           </div>
           <div className="flex items-center space-x-3">
+            <NotificationBell />
             <UserSelector />
             {hasPermission('manage-users') && (
               <Button variant="outline" size="sm">
@@ -95,13 +98,16 @@ const Index = () => {
       {/* Main Content */}
       <main className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="rof5" disabled={!hasPermission('create-instruction')}>
               ROF 5 Entry
             </TabsTrigger>
             <TabsTrigger value="templates" disabled={!hasPermission('view-dashboard')}>
               Templates
+            </TabsTrigger>
+            <TabsTrigger value="reminders" disabled={!hasPermission('view-dashboard')}>
+              Reminders
             </TabsTrigger>
             <TabsTrigger value="reports" disabled={!hasPermission('generate-reports')}>
               Reports
@@ -172,6 +178,18 @@ const Index = () => {
 
           <TabsContent value="templates">
             <DocumentTemplates />
+          </TabsContent>
+
+          <TabsContent value="reminders">
+            {hasPermission('view-dashboard') ? (
+              <ReminderManager />
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-gray-600">You don't have permission to manage reminders.</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="reports">
