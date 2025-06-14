@@ -1,4 +1,3 @@
-
 export interface AISuggestion {
   type: 'form-completion' | 'workflow-action' | 'priority' | 'deadline';
   field?: string;
@@ -19,18 +18,120 @@ export class AIService {
     // Simulate AI-powered form suggestions based on existing data
     const suggestions: AISuggestion[] = [];
 
+    // Template-specific suggestions
+    if (field === 'current_date') {
+      suggestions.push({
+        type: 'form-completion',
+        field: 'current_date',
+        value: new Date().toLocaleDateString('en-GB'),
+        confidence: 1.0,
+        reason: 'Auto-generated current date'
+      });
+    }
+
+    if (field === 'site_code' && formData.siteLocation) {
+      const siteCode = this.generateSiteCode(formData.siteLocation);
+      suggestions.push({
+        type: 'form-completion',
+        field: 'site_code',
+        value: siteCode,
+        confidence: 0.9,
+        reason: 'Generated based on location'
+      });
+    }
+
+    if (field === 'file_ref' && formData.site_code) {
+      suggestions.push({
+        type: 'form-completion',
+        field: 'file_ref',
+        value: `${formData.site_code}/2024`,
+        confidence: 0.95,
+        reason: 'Standard file reference format'
+      });
+    }
+
+    if (field === 'tenant_name') {
+      suggestions.push({
+        type: 'form-completion',
+        field: 'tenant_name',
+        value: 'SAFARICOM PLC',
+        confidence: 1.0,
+        reason: 'Standard tenant name'
+      });
+    }
+
+    if (field === 'tenant_address') {
+      suggestions.push({
+        type: 'form-completion',
+        field: 'tenant_address',
+        value: 'Safaricom House, Waiyaki Way, Westlands, P.O. Box 66827-00800, Nairobi',
+        confidence: 1.0,
+        reason: 'Standard Safaricom address'
+      });
+    }
+
+    if (field === 'escalation_rate' && !formData.escalation_rate) {
+      suggestions.push({
+        type: 'form-completion',
+        field: 'escalation_rate',
+        value: '5',
+        confidence: 0.8,
+        reason: 'Standard escalation rate for telecom leases'
+      });
+    }
+
+    if (field === 'lease_term' && formData.site_location) {
+      const term = this.suggestLeaseTerm(formData.site_location);
+      suggestions.push({
+        type: 'form-completion',
+        field: 'lease_term',
+        value: term,
+        confidence: 0.85,
+        reason: `Recommended term for ${formData.site_location} area`
+      });
+    }
+
+    if (field === 'deposit' && formData.monthly_rent) {
+      const deposit = (parseFloat(formData.monthly_rent) * 2).toString();
+      suggestions.push({
+        type: 'form-completion',
+        field: 'deposit',
+        value: deposit,
+        confidence: 0.9,
+        reason: 'Standard deposit (2x monthly rent)'
+      });
+    }
+
+    if (field === 'vat_amount' && formData.total_fees) {
+      const vatAmount = (parseFloat(formData.total_fees) * 0.16).toString();
+      suggestions.push({
+        type: 'form-completion',
+        field: 'vat_amount',
+        value: vatAmount,
+        confidence: 1.0,
+        reason: 'VAT calculation (16%)'
+      });
+    }
+
+    if (field === 'total_amount' && formData.total_fees && formData.vat_amount) {
+      const totalAmount = (parseFloat(formData.total_fees) + parseFloat(formData.vat_amount)).toString();
+      suggestions.push({
+        type: 'form-completion',
+        field: 'total_amount',
+        value: totalAmount,
+        confidence: 1.0,
+        reason: 'Total including VAT'
+      });
+    }
+
+    // Location-based suggestions
     if (field === 'siteLocation' && formData.county) {
       const locationSuggestions = this.getLocationSuggestions(formData.county);
       suggestions.push(...locationSuggestions);
     }
 
-    if (field === 'leaseTerm' && formData.siteLocation) {
-      const termSuggestion = this.getLeaseTermSuggestion(formData.siteLocation);
-      suggestions.push(termSuggestion);
-    }
-
-    if (field === 'monthlyRent' && formData.siteLocation && formData.landArea) {
-      const rentSuggestion = this.getRentSuggestion(formData.siteLocation, formData.landArea);
+    if (field === 'monthly_rent' && formData.siteLocation && formData.land_area) {
+      const rentSuggestion = this.getRentSuggestion(formData.siteLocation, formData.land_area);
       suggestions.push(rentSuggestion);
     }
 
@@ -109,6 +210,18 @@ export class AIService {
 
     baseDate.setDate(baseDate.getDate() + daysToAdd);
     return baseDate.toISOString().split('T')[0];
+  }
+
+  private static generateSiteCode(location: string): string {
+    const prefix = location.substring(0, 3).toUpperCase();
+    const suffix = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+    return `${prefix}${suffix}`;
+  }
+
+  private static suggestLeaseTerm(location: string): string {
+    if (location.toLowerCase().includes('cbd')) return '15';
+    if (location.toLowerCase().includes('industrial')) return '25';
+    return '20';
   }
 
   private static getLocationSuggestions(county: string): AISuggestion[] {

@@ -15,10 +15,13 @@ import {
   Settings
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { DocumentGenerator } from "@/services/documentGenerator";
+import TemplateVariableEditor from "./TemplateVariableEditor";
 
 const DocumentTemplates = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
   const templates = [
     {
@@ -107,24 +110,32 @@ const DocumentTemplates = () => {
   });
 
   const handlePreviewTemplate = (templateId: string) => {
-    toast({
-      title: "Template Preview",
-      description: `Opening preview for ${templateId}`,
-    });
+    const template = DocumentGenerator.templates[templateId];
+    if (template) {
+      toast({
+        title: "Template Preview",
+        description: template.content.substring(0, 100) + "...",
+      });
+    }
   };
 
   const handleEditTemplate = (templateId: string) => {
     toast({
-      title: "Edit Template",
-      description: `Opening editor for ${templateId}`,
+      title: "Template Editor",
+      description: "Template editing functionality coming soon",
     });
   };
 
   const handleGenerateDocument = (templateId: string) => {
-    toast({
-      title: "Document Generation",
-      description: `Starting document generation for ${templateId}`,
-    });
+    setSelectedTemplate(templateId);
+  };
+
+  const handleCloseEditor = () => {
+    setSelectedTemplate(null);
+  };
+
+  const getTemplateById = (id: string) => {
+    return DocumentGenerator.templates[id];
   };
 
   return (
@@ -338,6 +349,14 @@ const DocumentTemplates = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Template Variable Editor Modal */}
+      {selectedTemplate && (
+        <TemplateVariableEditor
+          template={getTemplateById(selectedTemplate)}
+          onClose={handleCloseEditor}
+        />
+      )}
     </div>
   );
 };
