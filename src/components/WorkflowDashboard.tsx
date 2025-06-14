@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,11 +11,13 @@ import {
   AlertTriangle,
   CheckCircle2,
   Eye,
-  Download
+  Download,
+  Brain
 } from "lucide-react";
 import { useWorkflow } from "@/contexts/WorkflowContext";
 import { DocumentGenerator } from "@/services/documentGenerator";
 import { useToast } from "@/hooks/use-toast";
+import WorkflowAISuggestions from "@/components/WorkflowAISuggestions";
 
 const WorkflowDashboard = () => {
   const { instructions, updateInstruction, addAuditEntry } = useWorkflow();
@@ -91,65 +92,77 @@ const WorkflowDashboard = () => {
           <CardTitle className="flex items-center space-x-2">
             <FileText className="w-5 h-5" />
             <span>Active Property Instructions</span>
+            <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-700 border-purple-200">
+              <Brain className="w-3 h-3 mr-1" />
+              AI Enhanced
+            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {instructions.map((instruction) => (
               <div key={instruction.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="font-semibold text-gray-900">{instruction.id}</h3>
-                      <Badge className={getStatusColor(instruction.stage)}>
-                        {instruction.stage.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </Badge>
-                      <AlertTriangle className={`w-4 h-4 ${getPriorityColor(instruction.priority)}`} />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h3 className="font-semibold text-gray-900">{instruction.id}</h3>
+                          <Badge className={getStatusColor(instruction.stage)}>
+                            {instruction.stage.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </Badge>
+                          <AlertTriangle className={`w-4 h-4 ${getPriorityColor(instruction.priority)}`} />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>{instruction.siteLocation}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <User className="w-4 h-4" />
+                            <span>{instruction.landlordName}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{Math.floor((new Date().getTime() - new Date(instruction.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days active</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Clock className="w-4 h-4" />
+                            <span>Next: {instruction.nextAction}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleGenerateDocument(instruction.id, 'rof6-template')}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          ROF 6
+                        </Button>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600">
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{instruction.siteLocation}</span>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Progress</span>
+                        <span className="font-medium">{instruction.progress}%</span>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <User className="w-4 h-4" />
-                        <span>{instruction.landlordName}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{Math.floor((new Date().getTime() - new Date(instruction.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days active</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Clock className="w-4 h-4" />
-                        <span>Next: {instruction.nextAction}</span>
+                      <Progress value={instruction.progress} className="h-2" />
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span>Assigned to: {instruction.assignee}</span>
+                        <span>Site: {instruction.siteCode}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Details
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleGenerateDocument(instruction.id, 'rof6-template')}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      ROF 6
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Progress</span>
-                    <span className="font-medium">{instruction.progress}%</span>
-                  </div>
-                  <Progress value={instruction.progress} className="h-2" />
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>Assigned to: {instruction.assignee}</span>
-                    <span>Site: {instruction.siteCode}</span>
+
+                  <div>
+                    <WorkflowAISuggestions instruction={instruction} />
                   </div>
                 </div>
               </div>
