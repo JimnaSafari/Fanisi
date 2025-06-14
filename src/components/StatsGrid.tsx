@@ -1,69 +1,80 @@
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { 
   FileText, 
   Clock, 
-  CheckCircle, 
-  AlertCircle,
-  TrendingUp
+  CheckCircle2, 
+  TrendingUp,
+  Users,
+  MapPin
 } from "lucide-react";
+import { useWorkflow } from "@/contexts/WorkflowContext";
 
 const StatsGrid = () => {
+  const { instructions } = useWorkflow();
+
   const stats = [
     {
-      title: "Active Instructions",
-      value: "24",
+      title: "Total Instructions",
+      value: instructions.length,
+      change: "+12%",
       icon: FileText,
-      color: "text-blue-600",
-      bgColor: "bg-gradient-to-r from-blue-50 to-blue-100",
-      trend: "+12%"
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/20",
+      borderColor: "border-blue-500/30"
     },
     {
-      title: "Pending Actions",
-      value: "12",
+      title: "In Progress",
+      value: instructions.filter(i => i.stage !== 'completed').length,
+      change: "+5%",
       icon: Clock,
-      color: "text-yellow-600",
-      bgColor: "bg-gradient-to-r from-yellow-50 to-yellow-100",
-      trend: "-5%"
+      color: "text-orange-400",
+      bgColor: "bg-orange-500/20",
+      borderColor: "border-orange-500/30"
     },
     {
-      title: "Completed This Month",
-      value: "8",
-      icon: CheckCircle,
-      color: "text-green-600",
-      bgColor: "bg-gradient-to-r from-green-50 to-green-100",
-      trend: "+18%"
+      title: "Completed",
+      value: instructions.filter(i => i.stage === 'completed').length,
+      change: "+8%",
+      icon: CheckCircle2,
+      color: "text-green-400",
+      bgColor: "bg-green-500/20",
+      borderColor: "border-green-500/30"
     },
     {
-      title: "Overdue Items",
-      value: "3",
-      icon: AlertCircle,
-      color: "text-red-600",
-      bgColor: "bg-gradient-to-r from-red-50 to-red-100",
-      trend: "-2"
+      title: "Active Miners",
+      value: "14",
+      change: "+3",
+      icon: Users,
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/20",
+      borderColor: "border-purple-500/30"
     }
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
-        <Card key={index} className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur-sm border-0 shadow-lg animate-scale-in" style={{ animationDelay: `${index * 100}ms` }}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                <div className="flex items-center space-x-2">
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                  <div className="flex items-center space-x-1">
-                    <TrendingUp className="w-3 h-3 text-green-500" />
-                    <span className="text-xs text-green-600 font-medium">{stat.trend}</span>
-                  </div>
-                </div>
-              </div>
-              <div className={`p-4 rounded-xl ${stat.bgColor} transform hover:scale-110 transition-transform duration-200`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
-              </div>
+        <Card key={index} className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700/50 transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">
+              {stat.title}
+            </CardTitle>
+            <div className={`p-2 rounded-lg ${stat.bgColor} border ${stat.borderColor}`}>
+              <stat.icon className={`w-4 h-4 ${stat.color}`} />
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="text-2xl font-bold text-white">{stat.value}</div>
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                {stat.change}
+              </Badge>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              vs last month
+            </p>
           </CardContent>
         </Card>
       ))}
