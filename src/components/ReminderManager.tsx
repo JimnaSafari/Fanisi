@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, Bell, Trash2, Edit, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -265,7 +264,6 @@ const ReminderManager = () => {
                     <Switch
                       checked={reminder.active}
                       onCheckedChange={(checked) => toggleActive(reminder.id, checked)}
-                      size="sm"
                     />
                   </div>
                 </div>
