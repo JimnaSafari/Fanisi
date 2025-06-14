@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { useUser } from './UserContext';
 
 export interface WorkflowInstruction {
   id: string;
@@ -32,6 +32,7 @@ interface WorkflowContextType {
   updateInstruction: (id: string, updates: Partial<WorkflowInstruction>) => void;
   addAuditEntry: (instructionId: string, entry: Omit<AuditEntry, 'id'>) => void;
   generateDocuments: (instructionId: string, templateIds: string[]) => Promise<string[]>;
+  assignToUser: (instructionId: string, userId: string, role: string) => void;
 }
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(undefined);
@@ -81,6 +82,24 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const assignToUser = (instructionId: string, userId: string, role: string) => {
+    const instruction = instructions.find(i => i.id === instructionId);
+    if (!instruction) return;
+
+    updateInstruction(instructionId, {
+      assignee: `${userId} (${role})`,
+      stage: role === 'EC' ? 'execution' : instruction.stage,
+      progress: role === 'EC' ? 60 : instruction.progress
+    });
+
+    addAuditEntry(instructionId, {
+      action: 'Assignment Updated',
+      user: 'System',
+      timestamp: new Date().toISOString(),
+      details: `Assigned to ${userId} (${role})`
+    });
+  };
+
   const generateDocuments = async (instructionId: string, templateIds: string[]): Promise<string[]> => {
     // Simulate document generation
     const generatedDocs = templateIds.map(templateId => `${templateId}-${instructionId}.pdf`);
@@ -107,7 +126,8 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
       addInstruction,
       updateInstruction,
       addAuditEntry,
-      generateDocuments
+      generateDocuments,
+      assignToUser
     }}>
       {children}
     </WorkflowContext.Provider>

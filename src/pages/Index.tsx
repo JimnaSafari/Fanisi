@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,10 +19,13 @@ import WorkflowDashboard from "@/components/WorkflowDashboard";
 import ROF5Form from "@/components/ROF5Form";
 import DocumentTemplates from "@/components/DocumentTemplates";
 import { useToast } from "@/hooks/use-toast";
+import UserSelector from "@/components/UserSelector";
+import { useUser } from "@/contexts/UserContext";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const { toast } = useToast();
+  const { currentUser, hasPermission } = useUser();
 
   const stats = [
     {
@@ -73,14 +75,19 @@ const Index = () => {
             </Badge>
           </div>
           <div className="flex items-center space-x-3">
-            <Button variant="outline" size="sm">
-              <Users className="w-4 h-4 mr-2" />
-              Manage Users
-            </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              New Instruction
-            </Button>
+            <UserSelector />
+            {hasPermission('manage-users') && (
+              <Button variant="outline" size="sm">
+                <Users className="w-4 h-4 mr-2" />
+                Manage Users
+              </Button>
+            )}
+            {hasPermission('create-instruction') && (
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                New Instruction
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -90,9 +97,15 @@ const Index = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="rof5">ROF 5 Entry</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
+            <TabsTrigger value="rof5" disabled={!hasPermission('create-instruction')}>
+              ROF 5 Entry
+            </TabsTrigger>
+            <TabsTrigger value="templates" disabled={!hasPermission('view-dashboard')}>
+              Templates
+            </TabsTrigger>
+            <TabsTrigger value="reports" disabled={!hasPermission('generate-reports')}>
+              Reports
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
@@ -131,10 +144,12 @@ const Index = () => {
                       <Filter className="w-4 h-4 mr-2" />
                       Filter
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      Export
-                    </Button>
+                    {hasPermission('generate-reports') && (
+                      <Button variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-2" />
+                        Export
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -144,7 +159,15 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="rof5">
-            <ROF5Form />
+            {hasPermission('create-instruction') ? (
+              <ROF5Form />
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-gray-600">You don't have permission to create new instructions.</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="templates">
