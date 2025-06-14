@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import WorkflowDashboard from "@/components/WorkflowDashboard";
 import ROF5Form from "@/components/ROF5Form";
 import DocumentTemplates from "@/components/DocumentTemplates";
+import Reports from "@/components/Reports";
 import { useToast } from "@/hooks/use-toast";
 import UserSelector from "@/components/UserSelector";
 import { useUser } from "@/contexts/UserContext";
@@ -223,17 +223,15 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="reports" className="animate-fade-in">
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  <span>Reports & Analytics</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Advanced reports and analytics functionality coming soon...</p>
-              </CardContent>
-            </Card>
+            {hasPermission('generate-reports') ? (
+              <Reports />
+            ) : (
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                <CardContent className="p-6 text-center">
+                  <p className="text-gray-600">You don't have permission to generate reports.</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </main>
