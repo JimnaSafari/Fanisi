@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -256,17 +255,17 @@ const DocumentTemplates = () => {
                 <div className="space-y-2">
                   <h4 className="font-medium">Date Variables</h4>
                   <div className="space-y-1 text-sm">
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{current_date}}</code> - Current date</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{commencement_date}}</code> - Lease commencement</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{expiry_date}}</code> - Lease expiry</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{current_date}}"}</code> - Current date</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{commencement_date}}"}</code> - Lease commencement</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{expiry_date}}"}</code> - Lease expiry</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-medium">Document Variables</h4>
                   <div className="space-y-1 text-sm">
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{document_ref}}</code> - Document reference</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{instruction_ref}}</code> - Instruction reference</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{file_ref}}</code> - File reference</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{document_ref}}"}</code> - Document reference</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{instruction_ref}}"}</code> - Instruction reference</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{file_ref}}"}</code> - File reference</p>
                   </div>
                 </div>
               </div>
@@ -277,18 +276,18 @@ const DocumentTemplates = () => {
                 <div className="space-y-2">
                   <h4 className="font-medium">Site Information</h4>
                   <div className="space-y-1 text-sm">
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{site_code}}</code> - Site code</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{site_location}}</code> - Site location</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{county}}</code> - County</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{sub_county}}</code> - Sub-county</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{site_code}}"}</code> - Site code</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{site_location}}"}</code> - Site location</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{county}}"}</code> - County</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{sub_county}}"}</code> - Sub-county</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-medium">Title Information</h4>
                   <div className="space-y-1 text-sm">
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{title_number}}</code> - Title number</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{title_type}}</code> - Title type</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{land_area}}</code> - Land area</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{title_number}}"}</code> - Title number</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{title_type}}"}</code> - Title type</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{land_area}}"}</code> - Land area</p>
                   </div>
                 </div>
               </div>
@@ -299,18 +298,18 @@ const DocumentTemplates = () => {
                 <div className="space-y-2">
                   <h4 className="font-medium">Financial Terms</h4>
                   <div className="space-y-1 text-sm">
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{monthly_rent}}</code> - Monthly rent</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{annual_rent}}</code> - Annual rent</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{deposit}}</code> - Security deposit</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{escalation_rate}}</code> - Escalation rate</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{monthly_rent}}"}</code> - Monthly rent</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{annual_rent}}"}</code> - Annual rent</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{deposit}}"}</code> - Security deposit</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{escalation_rate}}"}</code> - Escalation rate</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-medium">Lease Terms</h4>
                   <div className="space-y-1 text-sm">
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{lease_term}}</code> - Lease term</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{lease_type}}</code> - Lease type</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{renewal_option}}</code> - Renewal option</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{lease_term}}"}</code> - Lease term</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{lease_type}}"}</code> - Lease type</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{renewal_option}}"}</code> - Renewal option</p>
                   </div>
                 </div>
               </div>
@@ -321,17 +320,17 @@ const DocumentTemplates = () => {
                 <div className="space-y-2">
                   <h4 className="font-medium">Landlord Information</h4>
                   <div className="space-y-1 text-sm">
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{landlord_name}}</code> - Landlord name</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{landlord_address}}</code> - Landlord address</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{landlord_id}}</code> - Landlord ID</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{landlord_name}}"}</code> - Landlord name</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{landlord_address}}"}</code> - Landlord address</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{landlord_id}}"}</code> - Landlord ID</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-medium">Safaricom Information</h4>
                   <div className="space-y-1 text-sm">
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{tenant_name}}</code> - Safaricom PLC</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{tenant_address}}</code> - Safaricom address</p>
-                    <p><code className="bg-gray-100 px-2 py-1 rounded">{{poa_name}}</code> - POA name</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{tenant_name}}"}</code> - Safaricom PLC</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{tenant_address}}"}</code> - Safaricom address</p>
+                    <p><code className="bg-gray-100 px-2 py-1 rounded">{"{{poa_name}}"}</code> - POA name</p>
                   </div>
                 </div>
               </div>
