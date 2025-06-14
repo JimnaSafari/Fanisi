@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { useWorkflow } from "@/contexts/WorkflowContext";
+import { useWorkflow, WorkflowInstruction } from "@/contexts/WorkflowContext";
 import { DocumentGenerator, DocumentVariable } from "@/services/documentGenerator";
 
 export interface ROF5FormData {
@@ -114,6 +114,51 @@ export const useROF5Form = () => {
     ];
   };
 
+  const submitForm = () => {
+    // Validate required fields
+    if (!formData.siteCode || !formData.siteLocation || !formData.landlordName) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields (Site Code, Location, and Landlord Name)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Create new instruction
+    const newInstruction: WorkflowInstruction = {
+      id: `ROF-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+      siteCode: formData.siteCode,
+      siteLocation: formData.siteLocation,
+      landlordName: formData.landlordName,
+      stage: 'document-drafting',
+      progress: 15,
+      createdAt: new Date().toISOString().split('T')[0],
+      lastUpdated: new Date().toISOString().split('T')[0],
+      assignee: formData.instructingCounsel || 'Unassigned',
+      nextAction: 'Document Preparation Required',
+      priority: formData.urgencyLevel === 'urgent' ? 'high' : formData.urgencyLevel === 'normal' ? 'medium' : 'low',
+      formData: formData,
+      generatedDocuments: [],
+      auditTrail: [{
+        id: `audit-${Date.now()}`,
+        action: 'Instruction Created',
+        user: 'Current User',
+        timestamp: new Date().toISOString(),
+        details: `ROF 5 form submitted for ${formData.siteLocation}`
+      }]
+    };
+
+    addInstruction(newInstruction);
+
+    toast({
+      title: "Instruction Created",
+      description: `New property instruction ${newInstruction.id} has been created successfully.`,
+    });
+
+    resetForm();
+  };
+
   const resetForm = () => {
     setFormData(initialFormData);
   };
@@ -123,6 +168,7 @@ export const useROF5Form = () => {
     handleInputChange,
     handleDocumentCheck,
     generateDocumentVariables,
+    submitForm,
     resetForm,
     addInstruction,
     generateDocuments,

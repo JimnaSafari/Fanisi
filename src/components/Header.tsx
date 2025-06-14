@@ -11,7 +11,11 @@ import NotificationBell from "@/components/NotificationBell";
 import UserSelector from "@/components/UserSelector";
 import { useUser } from "@/contexts/UserContext";
 
-const Header = () => {
+interface HeaderProps {
+  onNewInstruction?: () => void;
+}
+
+const Header = ({ onNewInstruction }: HeaderProps) => {
   const { hasPermission } = useUser();
 
   return (
@@ -45,7 +49,10 @@ const Header = () => {
             </Button>
           )}
           {hasPermission('create-instruction') && (
-            <Button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg">
+            <Button 
+              onClick={onNewInstruction}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg"
+            >
               <Plus className="w-4 h-4 mr-2" />
               New Instruction
             </Button>

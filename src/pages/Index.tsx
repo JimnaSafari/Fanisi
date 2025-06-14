@@ -17,10 +17,14 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const { hasPermission } = useUser();
 
+  const handleNewInstruction = () => {
+    setActiveTab("rof5");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <BackgroundElements />
-      <Header />
+      <Header onNewInstruction={handleNewInstruction} />
 
       <main className="relative p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
