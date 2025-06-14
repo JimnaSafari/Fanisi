@@ -11,54 +11,23 @@ import {
   Calendar,
   AlertTriangle,
   CheckCircle2,
-  Eye
+  Eye,
+  Download
 } from "lucide-react";
+import { useWorkflow } from "@/contexts/WorkflowContext";
+import { DocumentGenerator } from "@/services/documentGenerator";
+import { useToast } from "@/hooks/use-toast";
 
 const WorkflowDashboard = () => {
-  const activeInstructions = [
-    {
-      id: "ROF-2024-001",
-      siteCode: "NBI001",
-      location: "Westlands, Nairobi",
-      landlord: "ABC Properties Ltd",
-      stage: "Document Drafting",
-      progress: 35,
-      daysActive: 5,
-      nextAction: "EC Review",
-      priority: "high",
-      assignee: "John Doe (IC)"
-    },
-    {
-      id: "ROF-2024-002",
-      siteCode: "MSA002",
-      location: "Mombasa Road",
-      landlord: "XYZ Holdings",
-      stage: "Execution",
-      progress: 75,
-      daysActive: 12,
-      nextAction: "POA Signature",
-      priority: "medium",
-      assignee: "Jane Smith (EC)"
-    },
-    {
-      id: "ROF-2024-003",
-      siteCode: "ELD003",
-      location: "Eldoret Central",
-      landlord: "PQR Investments",
-      stage: "Registration",
-      progress: 90,
-      daysActive: 18,
-      nextAction: "Document Return",
-      priority: "low",
-      assignee: "Mike Johnson (POA)"
-    }
-  ];
+  const { instructions, updateInstruction, addAuditEntry } = useWorkflow();
+  const { toast } = useToast();
 
   const getStatusColor = (stage: string) => {
     switch (stage) {
-      case "Document Drafting": return "bg-blue-100 text-blue-800";
-      case "Execution": return "bg-yellow-100 text-yellow-800";
-      case "Registration": return "bg-green-100 text-green-800";
+      case "document-drafting": return "bg-blue-100 text-blue-800";
+      case "execution": return "bg-yellow-100 text-yellow-800";
+      case "registration": return "bg-green-100 text-green-800";
+      case "completed": return "bg-gray-100 text-gray-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
@@ -72,6 +41,49 @@ const WorkflowDashboard = () => {
     }
   };
 
+  const handleGenerateDocument = async (instructionId: string, templateId: string) => {
+    const instruction = instructions.find(i => i.id === instructionId);
+    if (!instruction) return;
+
+    try {
+      const variables = [
+        { key: 'current_date', value: new Date().toLocaleDateString() },
+        { key: 'site_code', value: instruction.formData?.siteCode || instruction.siteCode },
+        { key: 'site_location', value: instruction.formData?.siteLocation || instruction.siteLocation },
+        { key: 'landlord_name', value: instruction.formData?.landlordName || instruction.landlordName },
+        { key: 'file_ref', value: `${instruction.siteCode}/2024` }
+      ];
+
+      const content = DocumentGenerator.populateTemplate(templateId, variables);
+      DocumentGenerator.downloadDocument(content, `${instruction.siteCode}-${templateId}.txt`);
+
+      addAuditEntry(instructionId, {
+        action: 'Document Generated',
+        user: 'Current User',
+        timestamp: new Date().toISOString(),
+        details: `Generated ${templateId} document`
+      });
+
+      toast({
+        title: "Document Generated",
+        description: `${templateId} has been generated and downloaded.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate document.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const stageCounts = {
+    "ROF 5 Received": instructions.filter(i => i.progress < 25).length,
+    "Document Drafting": instructions.filter(i => i.stage === 'document-drafting').length,
+    "Under Execution": instructions.filter(i => i.stage === 'execution').length,
+    "Registration & Closure": instructions.filter(i => i.stage === 'registration').length
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -83,29 +95,29 @@ const WorkflowDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {activeInstructions.map((instruction) => (
+            {instructions.map((instruction) => (
               <div key={instruction.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
                       <h3 className="font-semibold text-gray-900">{instruction.id}</h3>
                       <Badge className={getStatusColor(instruction.stage)}>
-                        {instruction.stage}
+                        {instruction.stage.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                       </Badge>
                       <AlertTriangle className={`w-4 h-4 ${getPriorityColor(instruction.priority)}`} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600">
                       <div className="flex items-center space-x-2">
                         <MapPin className="w-4 h-4" />
-                        <span>{instruction.location}</span>
+                        <span>{instruction.siteLocation}</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <User className="w-4 h-4" />
-                        <span>{instruction.landlord}</span>
+                        <span>{instruction.landlordName}</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Calendar className="w-4 h-4" />
-                        <span>{instruction.daysActive} days active</span>
+                        <span>{Math.floor((new Date().getTime() - new Date(instruction.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days active</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Clock className="w-4 h-4" />
@@ -113,10 +125,20 @@ const WorkflowDashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    <Eye className="w-4 h-4 mr-2" />
-                    View Details
-                  </Button>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm">
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleGenerateDocument(instruction.id, 'rof6-template')}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      ROF 6
+                    </Button>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
@@ -143,18 +165,13 @@ const WorkflowDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { stage: "ROF 5 Received", count: 8, color: "bg-blue-500" },
-              { stage: "Document Drafting", count: 12, color: "bg-yellow-500" },
-              { stage: "Under Execution", count: 6, color: "bg-orange-500" },
-              { stage: "Registration & Closure", count: 4, color: "bg-green-500" }
-            ].map((item, index) => (
+            {Object.entries(stageCounts).map(([stage, count], index) => (
               <div key={index} className="text-center p-4 rounded-lg border">
-                <div className={`w-12 h-12 ${item.color} rounded-full flex items-center justify-center mx-auto mb-2`}>
+                <div className={`w-12 h-12 ${['bg-blue-500', 'bg-yellow-500', 'bg-orange-500', 'bg-green-500'][index]} rounded-full flex items-center justify-center mx-auto mb-2`}>
                   <CheckCircle2 className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-gray-900">{item.count}</h3>
-                <p className="text-sm text-gray-600">{item.stage}</p>
+                <h3 className="font-semibold text-gray-900">{count}</h3>
+                <p className="text-sm text-gray-600">{stage}</p>
               </div>
             ))}
           </div>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,13 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, MapPin, FileText, DollarSign, User, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useWorkflow, WorkflowInstruction, AuditEntry } from "@/contexts/WorkflowContext";
+import { DocumentGenerator, DocumentVariable } from "@/services/documentGenerator";
 
 const ROF5Form = () => {
   const { toast } = useToast();
+  const { addInstruction, generateDocuments, addAuditEntry } = useWorkflow();
+  
   const [formData, setFormData] = useState({
     // Site Details
     siteCode: "",
@@ -80,14 +83,111 @@ const ROF5Form = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const generateDocumentVariables = (): DocumentVariable[] => {
+    return [
+      { key: 'current_date', value: new Date().toLocaleDateString() },
+      { key: 'site_code', value: formData.siteCode },
+      { key: 'site_location', value: formData.siteLocation },
+      { key: 'landlord_name', value: formData.landlordName },
+      { key: 'landlord_address', value: formData.landlordAddress },
+      { key: 'title_number', value: formData.titleNumber },
+      { key: 'land_area', value: formData.landArea },
+      { key: 'commencement_date', value: formData.commencementDate },
+      { key: 'lease_term', value: formData.leaseTerm },
+      { key: 'monthly_rent', value: formData.monthlyRent },
+      { key: 'escalation_rate', value: formData.rentEscalation },
+      { key: 'deposit', value: formData.deposit },
+      { key: 'lease_type', value: formData.leaseType },
+      { key: 'file_ref', value: `${formData.siteCode}/2024` }
+    ];
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("ROF 5 Form Data:", formData);
     
-    toast({
-      title: "ROF 5 Submitted Successfully",
-      description: "Property instruction has been created and workflow initiated.",
-    });
+    // Create new instruction
+    const instructionId = `ROF-${new Date().getFullYear()}-${String(Date.now()).slice(-3)}`;
+    
+    const newInstruction: WorkflowInstruction = {
+      id: instructionId,
+      siteCode: formData.siteCode,
+      siteLocation: formData.siteLocation,
+      landlordName: formData.landlordName,
+      stage: 'document-drafting',
+      progress: 25,
+      createdAt: new Date().toISOString().split('T')[0],
+      lastUpdated: new Date().toISOString().split('T')[0],
+      assignee: formData.instructingCounsel,
+      nextAction: 'Generate Documents',
+      priority: formData.urgencyLevel as 'low' | 'medium' | 'high' || 'medium',
+      formData: formData,
+      generatedDocuments: [],
+      auditTrail: [{
+        id: `audit-${Date.now()}`,
+        action: 'ROF 5 Submitted',
+        user: formData.instructingCounsel,
+        timestamp: new Date().toISOString(),
+        details: 'Initial property instruction created'
+      }]
+    };
+
+    addInstruction(newInstruction);
+
+    // Generate initial documents based on lease type
+    const templateIds = [formData.leaseType || 'lease-agreement'];
+    
+    try {
+      await generateDocuments(instructionId, templateIds);
+      
+      // Generate and download the main document
+      const variables = generateDocumentVariables();
+      const content = DocumentGenerator.populateTemplate(templateIds[0], variables);
+      DocumentGenerator.downloadDocument(content, `${formData.siteCode}-${templateIds[0]}.txt`);
+      
+      toast({
+        title: "ROF 5 Submitted Successfully",
+        description: `Property instruction ${instructionId} created and documents generated.`,
+      });
+
+      // Reset form
+      setFormData({
+        siteCode: "",
+        siteLocation: "",
+        county: "",
+        subCounty: "",
+        ward: "",
+        titleNumber: "",
+        titleType: "",
+        registrationSection: "",
+        landArea: "",
+        landUse: "",
+        landlordName: "",
+        landlordType: "",
+        landlordAddress: "",
+        landlordPhone: "",
+        landlordEmail: "",
+        landlordId: "",
+        leaseType: "",
+        leaseTerm: "",
+        commencementDate: "",
+        monthlyRent: "",
+        deposit: "",
+        rentEscalation: "5",
+        permitType: "",
+        specialConditions: "",
+        documentsReceived: [],
+        instructingCounsel: "",
+        urgencyLevel: "",
+        expectedCompletionDate: ""
+      });
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate documents. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -463,7 +563,7 @@ const ROF5Form = () => {
                 Save as Draft
               </Button>
               <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                Submit ROF 5 & Start Workflow
+                Submit ROF 5 & Generate Documents
               </Button>
             </div>
           </form>
