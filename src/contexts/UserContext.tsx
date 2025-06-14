@@ -55,10 +55,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(mockUsers[0]); // Default to IC user
 
   const rolePermissions = {
-    IC: ['create-instruction', 'view-dashboard', 'assign-external-counsel', 'approve-documents'],
+    IC: ['create-instruction', 'view-dashboard', 'assign-external-counsel', 'approve-documents', 'generate-reports'],
     EC: ['view-assigned-instructions', 'upload-documents', 'update-status', 'generate-documents'],
     POA: ['view-all-instructions', 'manage-properties', 'generate-reports'],
-    Admin: ['manage-users', 'view-all', 'system-settings', 'manage-templates']
+    Admin: ['manage-users', 'view-all', 'system-settings', 'manage-templates', 'generate-reports']
   };
 
   const hasPermission = (action: string): boolean => {
