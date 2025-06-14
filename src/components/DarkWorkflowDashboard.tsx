@@ -14,14 +14,22 @@ import {
   Download,
   MoreHorizontal,
   Star,
-  Activity
+  Activity,
+  ArrowRight,
+  CheckCircle2
 } from "lucide-react";
-import { useWorkflow } from "@/contexts/WorkflowContext";
+import { useWorkflow, WorkflowInstruction } from "@/contexts/WorkflowContext";
 import { useToast } from "@/hooks/use-toast";
 import LocationMap from "@/components/LocationMap";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const DarkWorkflowDashboard = () => {
-  const { instructions } = useWorkflow();
+  const { instructions, updateInstructionStage } = useWorkflow();
   const { toast } = useToast();
 
   const getStatusColor = (stage: string) => {
@@ -41,6 +49,20 @@ const DarkWorkflowDashboard = () => {
       case "low": return <Activity className="w-4 h-4 text-green-400" />;
       default: return <Activity className="w-4 h-4 text-slate-400" />;
     }
+  };
+
+  const getAvailableStages = (currentStage: WorkflowInstruction['stage']) => {
+    const stages: WorkflowInstruction['stage'][] = ['document-drafting', 'execution', 'registration', 'completed'];
+    const currentIndex = stages.indexOf(currentStage);
+    return stages.slice(currentIndex + 1);
+  };
+
+  const handleStageUpdate = (instructionId: string, newStage: WorkflowInstruction['stage']) => {
+    updateInstructionStage(instructionId, newStage);
+    toast({
+      title: "Stage Updated",
+      description: `Instruction moved to ${newStage.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}`,
+    });
   };
 
   const handleAction = (action: string, instructionId: string) => {
@@ -105,11 +127,37 @@ const DarkWorkflowDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Status */}
+                  {/* Status with Stage Controls */}
                   <div className="col-span-2">
-                    <Badge className={getStatusColor(instruction.stage)}>
-                      {instruction.stage.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </Badge>
+                    <div className="flex items-center space-x-2">
+                      <Badge className={getStatusColor(instruction.stage)}>
+                        {instruction.stage.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </Badge>
+                      {instruction.stage !== 'completed' && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-400 hover:text-white">
+                              <ArrowRight className="w-3 h-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-slate-700 border-slate-600">
+                            {getAvailableStages(instruction.stage).map((stage) => (
+                              <DropdownMenuItem
+                                key={stage}
+                                onClick={() => handleStageUpdate(instruction.id, stage)}
+                                className="text-slate-200 hover:bg-slate-600 cursor-pointer"
+                              >
+                                <ArrowRight className="w-3 h-3 mr-2" />
+                                Move to {stage.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                      {instruction.stage === 'completed' && (
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                      )}
+                    </div>
                   </div>
 
                   {/* Progress */}

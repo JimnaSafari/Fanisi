@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useUser } from './UserContext';
 
@@ -30,6 +31,7 @@ interface WorkflowContextType {
   instructions: WorkflowInstruction[];
   addInstruction: (instruction: WorkflowInstruction) => void;
   updateInstruction: (id: string, updates: Partial<WorkflowInstruction>) => void;
+  updateInstructionStage: (id: string, stage: WorkflowInstruction['stage']) => void;
   addAuditEntry: (instructionId: string, entry: Omit<AuditEntry, 'id'>) => void;
   generateDocuments: (instructionId: string, templateIds: string[]) => Promise<string[]>;
   assignToUser: (instructionId: string, userId: string, role: string) => void;
@@ -54,8 +56,76 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
       formData: {},
       generatedDocuments: [],
       auditTrail: []
+    },
+    {
+      id: "ROF-2024-002",
+      siteCode: "NBI002",
+      siteLocation: "Karen, Nairobi",
+      landlordName: "XYZ Holdings Ltd",
+      stage: "execution",
+      progress: 65,
+      createdAt: "2024-01-08",
+      lastUpdated: "2024-01-20",
+      assignee: "Jane Smith (EC)",
+      nextAction: "Lease Execution",
+      priority: "medium",
+      formData: {},
+      generatedDocuments: [],
+      auditTrail: []
+    },
+    {
+      id: "ROF-2024-003",
+      siteCode: "NBI003",
+      siteLocation: "Kilimani, Nairobi",
+      landlordName: "Prime Estates",
+      stage: "registration",
+      progress: 85,
+      createdAt: "2024-01-05",
+      lastUpdated: "2024-01-22",
+      assignee: "Mike Johnson (POA)",
+      nextAction: "Registration & Closure",
+      priority: "low",
+      formData: {},
+      generatedDocuments: [],
+      auditTrail: []
+    },
+    {
+      id: "ROF-2024-004",
+      siteCode: "NBI004",
+      siteLocation: "CBD, Nairobi",
+      landlordName: "Central Plaza Ltd",
+      stage: "completed",
+      progress: 100,
+      createdAt: "2024-01-01",
+      lastUpdated: "2024-01-25",
+      assignee: "Admin User (Admin)",
+      nextAction: "File Archived",
+      priority: "low",
+      formData: {},
+      generatedDocuments: [],
+      auditTrail: []
     }
   ]);
+
+  const getStageProgress = (stage: WorkflowInstruction['stage']): number => {
+    switch (stage) {
+      case 'document-drafting': return 25;
+      case 'execution': return 60;
+      case 'registration': return 85;
+      case 'completed': return 100;
+      default: return 0;
+    }
+  };
+
+  const getNextAction = (stage: WorkflowInstruction['stage']): string => {
+    switch (stage) {
+      case 'document-drafting': return 'EC Review & Document Finalization';
+      case 'execution': return 'Lease Execution & Signing';
+      case 'registration': return 'Registration & Closure';
+      case 'completed': return 'File Archived';
+      default: return 'Pending Review';
+    }
+  };
 
   const addInstruction = (instruction: WorkflowInstruction) => {
     setInstructions(prev => [...prev, instruction]);
@@ -69,6 +139,24 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
           : inst
       )
     );
+  };
+
+  const updateInstructionStage = (id: string, stage: WorkflowInstruction['stage']) => {
+    const progress = getStageProgress(stage);
+    const nextAction = getNextAction(stage);
+    
+    updateInstruction(id, {
+      stage,
+      progress,
+      nextAction
+    });
+
+    addAuditEntry(id, {
+      action: 'Stage Updated',
+      user: 'System',
+      timestamp: new Date().toISOString(),
+      details: `Stage changed to ${stage.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}`
+    });
   };
 
   const addAuditEntry = (instructionId: string, entry: Omit<AuditEntry, 'id'>) => {
@@ -86,10 +174,23 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
     const instruction = instructions.find(i => i.id === instructionId);
     if (!instruction) return;
 
+    let newStage = instruction.stage;
+    let newProgress = instruction.progress;
+
+    // Auto-advance stage based on role assignment
+    if (role === 'EC' && instruction.stage === 'document-drafting') {
+      newStage = 'execution';
+      newProgress = 60;
+    } else if (role === 'POA' && instruction.stage === 'execution') {
+      newStage = 'registration';
+      newProgress = 85;
+    }
+
     updateInstruction(instructionId, {
       assignee: `${userId} (${role})`,
-      stage: role === 'EC' ? 'execution' : instruction.stage,
-      progress: role === 'EC' ? 60 : instruction.progress
+      stage: newStage,
+      progress: newProgress,
+      nextAction: getNextAction(newStage)
     });
 
     addAuditEntry(instructionId, {
@@ -106,8 +207,7 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
     
     updateInstruction(instructionId, {
       generatedDocuments: generatedDocs,
-      progress: 50,
-      stage: 'execution'
+      progress: 50
     });
 
     addAuditEntry(instructionId, {
@@ -125,6 +225,7 @@ export const WorkflowProvider = ({ children }: { children: ReactNode }) => {
       instructions,
       addInstruction,
       updateInstruction,
+      updateInstructionStage,
       addAuditEntry,
       generateDocuments,
       assignToUser
