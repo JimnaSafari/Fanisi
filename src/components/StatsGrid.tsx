@@ -32,36 +32,36 @@ const StatsGrid = () => {
       value: stageStats.total,
       change: "+12%",
       icon: FileText,
-      color: "text-blue-400",
-      bgColor: "bg-blue-500/20",
-      borderColor: "border-blue-500/30"
+      color: "text-cyan-300",
+      bgColor: "bg-gradient-to-br from-cyan-500/30 to-blue-500/30",
+      borderColor: "border-cyan-400/50"
     },
     {
       title: "In Progress",
       value: stageStats.inProgress,
       change: "+5%",
       icon: Clock,
-      color: "text-orange-400",
-      bgColor: "bg-orange-500/20",
-      borderColor: "border-orange-500/30"
+      color: "text-amber-300",
+      bgColor: "bg-gradient-to-br from-amber-500/30 to-orange-500/30",
+      borderColor: "border-amber-400/50"
     },
     {
       title: "Completed",
       value: stageStats.completed,
       change: "+8%",
       icon: CheckCircle2,
-      color: "text-green-400",
-      bgColor: "bg-green-500/20",
-      borderColor: "border-green-500/30"
+      color: "text-emerald-300",
+      bgColor: "bg-gradient-to-br from-emerald-500/30 to-green-500/30",
+      borderColor: "border-emerald-400/50"
     },
     {
       title: "Avg Progress",
       value: `${stageStats.avgProgress}%`,
       change: "+3%",
       icon: TrendingUp,
-      color: "text-purple-400",
-      bgColor: "bg-purple-500/20",
-      borderColor: "border-purple-500/30"
+      color: "text-violet-300",
+      bgColor: "bg-gradient-to-br from-violet-500/30 to-purple-500/30",
+      borderColor: "border-violet-400/50"
     }
   ];
 
@@ -70,23 +70,23 @@ const StatsGrid = () => {
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <Card key={index} className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700/50 transition-colors">
+          <Card key={index} className="bg-slate-700/80 border-slate-600 text-white hover:bg-slate-600/80 transition-all duration-300 hover:scale-105">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-slate-400">
+              <CardTitle className="text-sm font-medium text-slate-200">
                 {stat.title}
               </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor} border ${stat.borderColor}`}>
-                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+              <div className={`p-3 rounded-lg ${stat.bgColor} border ${stat.borderColor} shadow-lg`}>
+                <stat.icon className={`w-5 h-5 ${stat.color}`} />
               </div>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                <div className="text-3xl font-bold text-white">{stat.value}</div>
+                <Badge className="bg-emerald-500/30 text-emerald-300 border-emerald-400/50 px-3 py-1">
                   {stat.change}
                 </Badge>
               </div>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-300 mt-2">
                 vs last month
               </p>
             </CardContent>
@@ -95,30 +95,30 @@ const StatsGrid = () => {
       </div>
 
       {/* Stage Breakdown */}
-      <Card className="bg-slate-800 border-slate-700 text-white">
+      <Card className="bg-slate-700/80 border-slate-600 text-white">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Settings className="w-5 h-5 text-orange-400" />
-            <span>Workflow Stage Breakdown</span>
+            <Settings className="w-6 h-6 text-cyan-400" />
+            <span className="text-xl">Workflow Stage Breakdown</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="text-center p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <div className="text-2xl font-bold text-blue-400">{stageStats.documentDrafting}</div>
-              <p className="text-sm text-slate-400">Document Drafting</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-400/30 hover:from-cyan-500/30 hover:to-blue-500/30 transition-all duration-300">
+              <div className="text-3xl font-bold text-cyan-300 mb-2">{stageStats.documentDrafting}</div>
+              <p className="text-sm text-slate-200 font-medium">Document Drafting</p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-              <div className="text-2xl font-bold text-yellow-400">{stageStats.execution}</div>
-              <p className="text-sm text-slate-400">Execution</p>
+            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-amber-400/30 hover:from-amber-500/30 hover:to-yellow-500/30 transition-all duration-300">
+              <div className="text-3xl font-bold text-amber-300 mb-2">{stageStats.execution}</div>
+              <p className="text-sm text-slate-200 font-medium">Execution</p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-              <div className="text-2xl font-bold text-green-400">{stageStats.registration}</div>
-              <p className="text-sm text-slate-400">Registration</p>
+            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-400/30 hover:from-emerald-500/30 hover:to-green-500/30 transition-all duration-300">
+              <div className="text-3xl font-bold text-emerald-300 mb-2">{stageStats.registration}</div>
+              <p className="text-sm text-slate-200 font-medium">Registration</p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-slate-500/10 border border-slate-500/20">
-              <div className="text-2xl font-bold text-slate-400">{stageStats.completed}</div>
-              <p className="text-sm text-slate-400">Completed</p>
+            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-slate-500/20 to-gray-500/20 border border-slate-400/30 hover:from-slate-500/30 hover:to-gray-500/30 transition-all duration-300">
+              <div className="text-3xl font-bold text-slate-300 mb-2">{stageStats.completed}</div>
+              <p className="text-sm text-slate-200 font-medium">Completed</p>
             </div>
           </div>
         </CardContent>
