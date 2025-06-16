@@ -1,7 +1,7 @@
 # Fanisi Flow Automator
 
 ## Project Overview
-A modern web application built with React, TypeScript, and shadcn-ui.
+A modern web application built with React, TypeScript, and shadcn-ui, designed to streamline and automate workflow processes.
 
 ## Main Contributor
 - [Jimnasafari](https://github.com/JimnaSafari)
