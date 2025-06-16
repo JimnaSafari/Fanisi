@@ -42,5 +42,30 @@ The development server will start with auto-reloading and an instant preview.
 npm run build
 ```
 
+## Deployment
+
+### Netlify Deployment
+1. Push your code to GitHub
+2. Go to [Netlify](https://app.netlify.com/)
+3. Click "Add new site" > "Import an existing project"
+4. Select your GitHub repository
+5. Configure build settings:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+6. Click "Deploy site"
+
+### Vercel Deployment
+1. Push your code to GitHub
+2. Go to [Vercel](https://vercel.com)
+3. Import your GitHub repository
+4. Vercel will automatically detect the Vite configuration
+5. Click "Deploy"
+
+## Environment Variables
+If you need to add environment variables:
+1. Create a `.env` file in the root directory
+2. Add your variables following the format: `VITE_VARIABLE_NAME=value`
+3. Never commit the `.env` file to version control
+
 ## License
 This project is licensed under the MIT License.
